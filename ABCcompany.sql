@@ -40,6 +40,19 @@ CREATE TABLE EMPLOYEE (
         ON UPDATE CASCADE
 );
 
+CREATE TABLE SALARY (
+    Personal_ID   INT NOT NULL,
+    TransactionNo VARCHAR(30) NOT NULL,
+    PayDate       DATE NOT NULL,
+    Amount        DECIMAL(10,2) NOT NULL,
+    PRIMARY KEY (Personal_ID, TransactionNo),
+    CONSTRAINT fk_salary_employee
+        FOREIGN KEY (Personal_ID)
+        REFERENCES EMPLOYEE(Personal_ID)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+);
+
 -- POTENTIAL_EMPLOYEE 
 CREATE TABLE POTENTIAL_EMPLOYEE (
     Personal_ID INT PRIMARY KEY,
@@ -105,7 +118,8 @@ CREATE TABLE VENDOR (
     Name         VARCHAR(80) NOT NULL,
     Address      VARCHAR(150),
     AccNo        VARCHAR(30),
-    CreditRating VARCHAR(20)
+    CreditRating VARCHAR(20),
+    PurchasingWSURL VARCHAR(200)
 );
 
 CREATE TABLE PART (
@@ -140,11 +154,29 @@ CREATE TABLE ORDER_INFO (
 CREATE TABLE JOB_POSITION (
     JobID       INT PRIMARY KEY,
     Description VARCHAR(200),
-    DeptID      INT,          
+    DeptID      INT,
+    PostedDate  DATE,
     CONSTRAINT fk_jobposition_department
         FOREIGN KEY (DeptID)
         REFERENCES DEPARTMENT(DeptID)
         ON DELETE SET NULL
+        ON UPDATE CASCADE
+);
+
+CREATE TABLE JOB_APPLICATION (
+    Personal_ID INT NOT NULL,
+    JobID       INT NOT NULL,
+    ApplyDate   DATE,
+    PRIMARY KEY (Personal_ID, JobID),
+    CONSTRAINT fk_jobapp_person
+        FOREIGN KEY (Personal_ID)
+        REFERENCES PERSON(Personal_ID)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    CONSTRAINT fk_jobapp_job
+        FOREIGN KEY (JobID)
+        REFERENCES JOB_POSITION(JobID)
+        ON DELETE CASCADE
         ON UPDATE CASCADE
 );
 
@@ -188,6 +220,7 @@ CREATE TABLE SUPPLIES (
     VendorID         INT NOT NULL,
     PartID           INT NOT NULL,
     LastPurchaseDate DATE,
+    UnitPrice        DECIMAL(10,2) CHECK (UnitPrice >= 0),
     PRIMARY KEY (VendorID, PartID),
     CONSTRAINT fk_supplies_vendor
         FOREIGN KEY (VendorID)
