@@ -10,7 +10,7 @@ CREATE TABLE PERSON (
     Fname      VARCHAR(40) NOT NULL,
     Mname      VARCHAR(40),
     Lname      VARCHAR(40) NOT NULL,
-    Age        INT CHECK (Age >= 0),
+    Age        INT CHECK (Age >= 0 AND Age < 65),
     Gender     VARCHAR(10),
     
     AddLine1   VARCHAR(100),
@@ -22,12 +22,11 @@ CREATE TABLE PERSON (
     EmailAdd   VARCHAR(80)
 );
 
-
 -- EMPLOYEE 
 CREATE TABLE EMPLOYEE (
-    Personal_ID INT PRIMARY KEY,
-    Ranked        VARCHAR(40),
-    Title       VARCHAR(60),
+    Personal_ID         INT PRIMARY KEY,
+    Ranked              VARCHAR(40),
+    Title               VARCHAR(60),
     SalaryAmount        DECIMAL(10,2),
     SalaryTransactionNo VARCHAR(30),
     SalaryPayDate       DATE,
@@ -99,6 +98,24 @@ CREATE TABLE DEPARTMENT (
     DeptName   VARCHAR(80) NOT NULL
 );
 
+CREATE TABLE EMP_DEPT_HISTORY (
+    Personal_ID INT NOT NULL,
+    DeptID      INT NOT NULL,
+    StartTime   DATETIME NOT NULL,
+    EndTime     DATETIME,
+    PRIMARY KEY (Personal_ID, DeptID, StartTime),
+    CONSTRAINT fk_edh_employee
+        FOREIGN KEY (Personal_ID)
+        REFERENCES EMPLOYEE(Personal_ID)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    CONSTRAINT fk_edh_department
+        FOREIGN KEY (DeptID)
+        REFERENCES DEPARTMENT(DeptID)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+);
+
 
 ALTER TABLE EMPLOYEE
     ADD CONSTRAINT fk_employee_department
@@ -123,7 +140,9 @@ CREATE TABLE VENDOR (
 );
 
 CREATE TABLE PART (
-    PartID  INT PRIMARY KEY
+    PartID      INT PRIMARY KEY,
+    PartName    VARCHAR(80),
+    PartWeight  DECIMAL(10,2)
 );
 
 CREATE TABLE PRODUCT (
@@ -135,20 +154,22 @@ CREATE TABLE PRODUCT (
     Style       VARCHAR(40)
 );
 
-
--- Assumption: Each ORDER_INFO row refers to exactly one Product.
-CREATE TABLE ORDER_INFO (
-    OrderID     INT AUTO_INCREMENT PRIMARY KEY,
-    ProductID   INT NOT NULL,
-    NumOfParts  INT,         
-    PartTypes   VARCHAR(80),
-    CONSTRAINT fk_orderinfo_product
+CREATE TABLE PRODUCT_PART (
+    ProductID INT NOT NULL,
+    PartID    INT NOT NULL,
+    Quantity  INT NOT NULL,
+    PRIMARY KEY (ProductID, PartID),
+    CONSTRAINT fk_pp_product
         FOREIGN KEY (ProductID)
         REFERENCES PRODUCT(ProductID)
         ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    CONSTRAINT fk_pp_part
+        FOREIGN KEY (PartID)
+        REFERENCES PART(PartID)
+        ON DELETE CASCADE
         ON UPDATE CASCADE
 );
-
 
 CREATE TABLE JOB_POSITION (
     JobID       INT PRIMARY KEY,
@@ -180,11 +201,12 @@ CREATE TABLE JOB_APPLICATION (
 );
 
 CREATE TABLE INTERVIEW (
-    InterviewID   INT AUTO_INCREMENT PRIMARY KEY,
-    Candidate_ID  INT NOT NULL,
-    JobID         INT NOT NULL,
-    InterviewTime DATETIME,
-    Grade         VARCHAR(10),
+    InterviewID       INT AUTO_INCREMENT PRIMARY KEY,
+    Candidate_ID      INT NOT NULL,
+    JobID             INT NOT NULL,
+    InterviewTime     DATETIME,
+    Grade             VARCHAR(10),
+    Interviewer_ID    INT,
     CONSTRAINT fk_interview_candidate
         FOREIGN KEY (Candidate_ID)
         REFERENCES CANDIDATE(Personal_ID)
@@ -194,6 +216,11 @@ CREATE TABLE INTERVIEW (
         FOREIGN KEY (JobID)
         REFERENCES JOB_POSITION(JobID)
         ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    CONSTRAINT fk_interview_interviewer
+        FOREIGN KEY (Interviewer_ID)
+        REFERENCES EMPLOYEE(Personal_ID)
+        ON DELETE SET NULL
         ON UPDATE CASCADE
 );
 
