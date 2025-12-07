@@ -10,12 +10,18 @@ def index():
     if request.method == "POST":
         username = request.form.get("username", "")
         password = request.form.get("password", "")
-        query = f"SELECT * FROM users WHERE username='{username}' AND password='{password}'"
         conn = pymysql.connect(
              host='127.0.0.1',
-             user='',
-             password='',
-             database=''
+             user='euki',
+             password='tan',
+             database='ABCcompany'
+            )
+        query = f"SELECT * FROM PERSON WHERE FNAME='{username} AND PERSONAL_ID='{password}';"
+        conn = pymysql.connect(
+             host='127.0.0.1',
+             user='euki',
+             password='tan',
+             database='ABCcompany'
             )
         cursor = conn.cursor()
         cursor.execute(query)
