@@ -4,6 +4,17 @@ DROP DATABASE IF EXISTS ABCcompany;
 CREATE DATABASE ABCcompany;
 USE ABCcompany;
 
+show databases;
+REVOKE ALL PRIVILEGES ON *.* FROM 'euki'@'localhost';
+REVOKE GRANT OPTION ONdepartment *.* FROM 'euki'@'localhost';
+FLUSH PRIVILEGES;
+SHOW GRANTS FOR 'euki'@'localhost';
+
+GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, INDEX  ON ABCcompany.*  TO 'euki'@'localhost';
+flush privileges;
+
+
+-- Drop database if exists and create fresh
 
 CREATE TABLE PERSON (
     Personal_ID INT AUTO_INCREMENT PRIMARY KEY,
@@ -351,3 +362,49 @@ CREATE TABLE BUYS (
         ON DELETE CASCADE
         ON UPDATE CASCADE
 );
+
+-- VIEWS HERE
+use ABCcompany;
+CREATE VIEW View1 AS
+SELECT
+    s.Personal_ID,
+    AVG(s.Amount) AS AvgMonthlySalary
+FROM SALARY s
+GROUP BY s.Personal_ID;
+
+CREATE VIEW View2 AS
+SELECT
+    i.Candidate_ID,
+    i.JobID,
+    COUNT(*) AS PassedRounds
+FROM INTERVIEW i
+WHERE CAST(i.Grade AS SIGNED) > 60
+GROUP BY i.Candidate_ID, i.JobID;
+
+CREATE VIEW View3 AS
+SELECT
+    p.ProductType,
+    COUNT(*) AS NumItemsSold
+FROM SALE_HISTORY sh
+JOIN PRODUCT p
+    ON p.ProductID = sh.ProductID
+GROUP BY p.ProductType;
+
+CREATE VIEW View4 AS
+SELECT
+    pp.ProductID,
+    SUM(pp.Quantity * mu.MinPrice) AS PartPurchaseCost
+FROM PRODUCT_PART pp
+JOIN (
+    SELECT
+        PartID,
+        MIN(UnitPrice) AS MinPrice
+    FROM SUPPLIES
+    GROUP BY PartID
+) AS mu
+    ON mu.PartID = pp.PartID
+GROUP BY pp.ProductID;
+
+
+
+
