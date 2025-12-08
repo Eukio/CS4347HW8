@@ -6,7 +6,7 @@ USE ABCcompany;
 
 show databases;
 REVOKE ALL PRIVILEGES ON *.* FROM 'euki'@'localhost';
-REVOKE GRANT OPTION ONdepartment *.* FROM 'euki'@'localhost';
+REVOKE GRANT OPTION ON *.* FROM 'euki'@'localhost';
 FLUSH PRIVILEGES;
 SHOW GRANTS FOR 'euki'@'localhost';
 
@@ -404,7 +404,3 @@ JOIN (
 ) AS mu
     ON mu.PartID = pp.PartID
 GROUP BY pp.ProductID;
-
-
-
-
